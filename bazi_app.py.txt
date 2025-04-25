@@ -1,0 +1,58 @@
+# Step 1: API Structure & BaZi Formula
+
+from fastapi import FastAPI
+from pydantic import BaseModel
+from datetime import datetime
+
+app = FastAPI()
+
+class BirthData(BaseModel):
+    birth_date: str  # format YYYY-MM-DD
+    birth_time: str  # format HH:MM (24hr)
+    gender: str      # 'male' or 'female'
+
+@app.post("/bazi/analyze")
+def analyze_bazi(data: BirthData):
+    # 1. Convert to 4 Pillars using placeholder (replace with real lunar conversion)
+    pillars = calculate_4pillars(data.birth_date, data.birth_time)
+
+    # 2. Get Element Info
+    bazi_data = analyze_elements(pillars, data.gender)
+
+    # 3. Rule-Based Output
+    result = generate_analysis(bazi_data)
+    return result
+
+# Step 2: Placeholder for Lunar Calendar Conversion
+
+def calculate_4pillars(birth_date: str, birth_time: str):
+    # This should use a lunar calendar API or lookup table
+    # Return dictionary of {year: (stem, branch), ...}
+    return {
+        "year": ("戊", "午"),
+        "month": ("辛", "酉"),
+        "day": ("乙", "亥"),
+        "hour": ("乙", "酉")
+    }
+
+# Step 3: Rule-Based Analyzer
+
+def analyze_elements(pillars, gender):
+    day_stem = pillars['day'][0]  # e.g., '乙'
+    analysis = {
+        "day_master": day_stem,
+        "strength": "weak" if day_stem in ['乙', '癸'] else "strong",
+        "favorable_elements": ["water", "wood"] if day_stem == "乙" else ["fire"],
+        "unfavorable_elements": ["metal"] if day_stem == "乙" else ["water"]
+    }
+    return analysis
+
+# Step 4: GPT or Static Report Generator
+
+def generate_analysis(bazi):
+    summary = f"Day Master: {bazi['day_master']}\n"
+    summary += f"Strength: {bazi['strength']}\n"
+    summary += f"Favorable Elements: {', '.join(bazi['favorable_elements'])}\n"
+    summary += f"Unfavorable Elements: {', '.join(bazi['unfavorable_elements'])}\n"
+    summary += "Advice: Balance your environment with colors and materials supporting favorable elements."
+    return {"summary": summary, "bazi_detail": bazi}
