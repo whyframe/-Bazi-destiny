@@ -1,58 +1,33 @@
-# Step 1: API Structure & BaZi Formula
-
-from fastapi import FastAPI
-from pydantic import BaseModel
+import streamlit as st
 from datetime import datetime
 
-app = FastAPI()
+st.title("🔮 วิเคราะห์ดวงจีน BaZi (ต้นแบบ)")
 
-class BirthData(BaseModel):
-    birth_date: str  # format YYYY-MM-DD
-    birth_time: str  # format HH:MM (24hr)
-    gender: str      # 'male' or 'female'
+# --- Input
+birth_date = st.date_input("📅 วันเกิด")
+birth_time = st.time_input("⏰ เวลาเกิด")
+gender = st.selectbox("เพศ", ["ชาย", "หญิง"])
 
-@app.post("/bazi/analyze")
-def analyze_bazi(data: BirthData):
-    # 1. Convert to 4 Pillars using placeholder (replace with real lunar conversion)
-    pillars = calculate_4pillars(data.birth_date, data.birth_time)
-
-    # 2. Get Element Info
-    bazi_data = analyze_elements(pillars, data.gender)
-
-    # 3. Rule-Based Output
-    result = generate_analysis(bazi_data)
-    return result
-
-# Step 2: Placeholder for Lunar Calendar Conversion
-
-def calculate_4pillars(birth_date: str, birth_time: str):
-    # This should use a lunar calendar API or lookup table
-    # Return dictionary of {year: (stem, branch), ...}
+# --- Process (Mock BaZi Conversion)
+def mock_4pillars():
     return {
-        "year": ("戊", "午"),
-        "month": ("辛", "酉"),
-        "day": ("乙", "亥"),
-        "hour": ("乙", "酉")
+        "ปี": ("戊", "午"),
+        "เดือน": ("辛", "酉"),
+        "วัน": ("乙", "亥"),
+        "เวลา": ("乙", "酉")
     }
 
-# Step 3: Rule-Based Analyzer
+pillars = mock_4pillars()
+day_master = pillars["วัน"][0]  # '乙'
 
-def analyze_elements(pillars, gender):
-    day_stem = pillars['day'][0]  # e.g., '乙'
-    analysis = {
-        "day_master": day_stem,
-        "strength": "weak" if day_stem in ['乙', '癸'] else "strong",
-        "favorable_elements": ["water", "wood"] if day_stem == "乙" else ["fire"],
-        "unfavorable_elements": ["metal"] if day_stem == "乙" else ["water"]
-    }
-    return analysis
+# --- Analysis
+favorable = ["น้ำ", "ไม้"] if day_master == "乙" else ["ไฟ"]
+unfavorable = ["ทอง"] if day_master == "乙" else ["น้ำ"]
 
-# Step 4: GPT or Static Report Generator
-
-def generate_analysis(bazi):
-    summary = f"Day Master: {bazi['day_master']}\n"
-    summary += f"Strength: {bazi['strength']}\n"
-    summary += f"Favorable Elements: {', '.join(bazi['favorable_elements'])}\n"
-    summary += f"Unfavorable Elements: {', '.join(bazi['unfavorable_elements'])}\n"
-    summary += "Advice: Balance your environment with colors and materials supporting favorable elements."
-    return {"summary": summary, "bazi_detail": bazi}
+# --- Output
+st.subheader("🔎 ผลการวิเคราะห์เบื้องต้น:")
+st.markdown(f"""
+- **ธาตุดิถี**: `{day_master}`
+- **ธาตุเกื้อหนุน**: `{', '.join(favorable)}`
+- **ธาตุควรหลีกเลี่ยง**: `{', '.join(unfavorable)}`
+""")
